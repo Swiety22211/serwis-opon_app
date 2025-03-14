@@ -1,0 +1,41 @@
+# Dodawanie ikony strony (favicon)
+
+Favicon to mała ikona, która jest wyświetlana w zakładce przeglądarki i jako ikona strony.
+
+## Jak dodać favicon do aplikacji Serwis Opon:
+
+1. Przygotuj plik favicon.ico o wymiarach 16x16, 32x32 lub 64x64 pikseli
+2. Umieść plik w głównym katalogu aplikacji
+3. Upewnij się, że w pliku index.html znajduje się następująca linia:
+   ```html
+   <link rel="icon" type="image/x-icon" href="favicon.ico">
+   ```
+
+## Alternatywnie możesz użyć gotowego emoji jako favicon:
+
+1. Utwórz plik `favicon.svg` w folderze `/assets/img/`
+2. Umieść w nim następujący kod SVG (możesz zmienić emoji na inne, np. 🔧, 🚗, 🔄):
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <text y=".9em" font-size="90">🛞</text>
+</svg>
+```
+
+3. W pliku `index.html` dodaj następującą linię w sekcji `<head>`:
+   ```html
+   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+   ```
+
+## Opcjonalnie - różne rozmiary dla różnych urządzeń:
+
+Dla lepszej obsługi różnych urządzeń i systemów operacyjnych, możesz dodać także:
+
+```html
+<link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16x16.png">
+<link rel="manifest" href="assets/img/site.webmanifest">
+```
+
+Gdzie odpowiednie pliki PNG mają wymiary zgodne z nazwami.

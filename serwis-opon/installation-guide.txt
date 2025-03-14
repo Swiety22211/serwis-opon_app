@@ -1,0 +1,117 @@
+# Instrukcja instalacji Serwis Opon
+
+## Wymagania systemowe
+
+- PHP 7.4+ 
+- MySQL 5.7+ lub MariaDB 10.4+
+- Apache 2.4+ z mod_rewrite
+- XAMPP 8.0+ (zalecane jako kompletne środowisko)
+
+## Krok 1: Instalacja XAMPP
+
+1. Pobierz XAMPP z oficjalnej strony: https://www.apachefriends.org/download.html
+2. Zainstaluj XAMPP wybierając komponenty:
+   - Apache
+   - MySQL
+   - PHP
+   - phpMyAdmin
+3. Uruchom panel kontrolny XAMPP
+4. Włącz usługi Apache i MySQL klikając przyciski "Start"
+
+## Krok 2: Pobranie i rozpakowanie plików aplikacji
+
+1. Utwórz folder `serwis-opon` w katalogu `htdocs`:
+   - Windows: `C:\xampp\htdocs\serwis-opon\`
+   - macOS: `/Applications/XAMPP/htdocs/serwis-opon/`
+   - Linux: `/opt/lampp/htdocs/serwis-opon/`
+
+2. Rozpakuj pobrane pliki aplikacji do utworzonego folderu
+
+## Krok 3: Utworzenie bazy danych
+
+1. Otwórz przeglądarkę i przejdź do: http://localhost/phpmyadmin/
+2. Zaloguj się (domyślnie użytkownik: `root`, bez hasła)
+3. Utwórz nową bazę danych:
+   - Kliknij "Nowa" w lewym panelu
+   - Wpisz nazwę bazy danych: `serwis_opon`
+   - Wybierz kodowanie znaków: `utf8mb4_polish_ci`
+   - Kliknij "Utwórz"
+4. Zaimportuj schemat bazy danych:
+   - Wybierz utworzoną bazę danych
+   - Kliknij zakładkę "Import"
+   - Kliknij "Wybierz plik" i wskaż plik `database/schema.sql` z pobranych plików
+   - Kliknij "Wykonaj"
+
+## Krok 4: Konfiguracja aplikacji
+
+1. Sprawdź plik `api/config/database.php` i upewnij się, że parametry połączenia są poprawne:
+   ```php
+   private $host = "localhost";
+   private $db_name = "serwis_opon";
+   private $username = "root";
+   private $password = "";
+   ```
+
+2. Jeśli Twoja konfiguracja MySQL ma inne dane dostępowe, zmień odpowiednio powyższe wartości.
+
+## Krok 5: Dostosowanie ścieżki bazowej API (jeśli potrzebne)
+
+1. Otwórz plik `api/index.php`
+2. Znajdź linię:
+   ```php
+   $base_path = '/serwis-opon/api';
+   ```
+3. Jeśli zainstalowałeś aplikację w innej ścieżce, dostosuj tę wartość odpowiednio
+
+4. Otwórz plik `assets/js/config/api.config.js`
+5. Sprawdź, czy URL API jest poprawny:
+   ```javascript
+   BASE_URL: 'http://localhost/serwis-opon/api',
+   ```
+
+## Krok 6: Uruchomienie aplikacji
+
+1. Upewnij się, że usługi Apache i MySQL są uruchomione w panelu XAMPP
+2. Otwórz przeglądarkę i przejdź do: http://localhost/serwis-opon/
+3. Powinieneś zobaczyć ekran logowania aplikacji
+4. Zaloguj się używając domyślnych danych:
+   - Login: `admin`
+   - Hasło: `admin123`
+
+## Rozwiązywanie problemów
+
+### Problem z wyświetlaniem strony:
+
+1. Sprawdź, czy Apache jest uruchomiony w panelu XAMPP
+2. Upewnij się, że pliki aplikacji są w poprawnym katalogu
+3. Sprawdź logi błędów Apache: 
+   - `C:\xampp\apache\logs\error.log` (Windows)
+   - `/Applications/XAMPP/logs/error.log` (macOS)
+   - `/opt/lampp/logs/error.log` (Linux)
+
+### Problem z połączeniem z bazą danych:
+
+1. Sprawdź, czy MySQL jest uruchomiony w panelu XAMPP
+2. Zweryfikuj, czy baza danych `serwis_opon` została poprawnie utworzona
+3. Sprawdź ustawienia połączenia w pliku `api/config/database.php`
+4. Sprawdź logi błędów MySQL:
+   - `C:\xampp\mysql\data\mysql_error.log` (Windows)
+   - `/Applications/XAMPP/logs/mysql_error.log` (macOS)
+   - `/opt/lampp/logs/mysql_error.log` (Linux)
+
+### Problem z API:
+
+1. Sprawdź, czy ścieżka bazowa w `api/index.php` jest poprawna
+2. Wykonaj proste zapytanie testowe: http://localhost/serwis-opon/api/dashboard/stats
+3. Powinieneś otrzymać odpowiedź JSON z danymi statystyk
+
+## Kontakt i wsparcie
+
+W przypadku problemów z instalacją, skontaktuj się z nami:
+
+- Email: support@serwisopon.pl
+- Strona wsparcia: https://serwisopon.pl/support
+
+---
+
+Copyright © 2025 Nimbot Systems

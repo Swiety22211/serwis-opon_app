@@ -1,0 +1,143 @@
+# Struktura katalogów projektu Serwis Opon
+
+Poniżej przedstawiona jest pełna struktura katalogów i plików projektu Serwis Opon:
+
+```
+serwis-opon/
+│
+├── api/                                # Backend API (PHP)
+│   ├── config/                         # Pliki konfiguracyjne
+│   │   ├── core/                       # Rdzeń systemu
+│   │   │   ├── database.php            # Klasa połączenia do bazy danych
+│   │   │   └── error_handler.php       # Obsługa błędów
+│   │   └── settings.php                # Globalne ustawienia
+│   │
+│   ├── controllers/                    # Kontrolery API
+│   │   ├── AuthController.php          # Uwierzytelnianie
+│   │   ├── DashboardController.php     # Panel główny 
+│   │   ├── ClientsController.php       # Klienci
+│   │   ├── ReservationsController.php  # Rezerwacje
+│   │   ├── StorageController.php       # Przechowalnia
+│   │   ├── InventoryController.php     # Magazyn
+│   │   ├── OrdersController.php        # Zamówienia
+│   │   ├── EmployeesController.php     # Pracownicy
+│   │   ├── FinanceController.php       # Finanse
+│   │   └── SettingsController.php      # Ustawienia
+│   │
+│   ├── models/                         # Modele danych
+│   │   ├── User.php                    # Użytkownicy
+│   │   ├── Client.php                  # Klienci
+│   │   ├── Reservation.php             # Rezerwacje
+│   │   ├── Storage.php                 # Przechowalnia
+│   │   ├── Inventory.php               # Magazyn
+│   │   ├── Order.php                   # Zamówienia
+│   │   ├── Employee.php                # Pracownicy
+│   │   ├── Invoice.php                 # Faktury
+│   │   └── Setting.php                 # Ustawienia
+│   │
+│   ├── services/                       # Serwisy (logika biznesowa)
+│   │   ├── AuthService.php             # Serwis uwierzytelniania
+│   │   └── EmailService.php            # Serwis mailowy
+│   │
+│   ├── utils/                          # Narzędzia pomocnicze
+│   │   ├── DateHelper.php              # Operacje na datach
+│   │   └── ValidationHelper.php        # Walidacja danych
+│   │
+│   ├── .htaccess                       # Konfiguracja rewrite URL dla API
+│   └── index.php                       # Główny punkt wejścia API
+│
+├── assets/                             # Zasoby statyczne
+│   ├── css/                            # Style CSS
+│   │   ├── main.css                    # Główny arkusz stylów
+│   │   ├── dashboard.css               # Style dla dashboardu
+│   │   ├── settings.css                # Style dla ustawień
+│   │   └── responsive.css              # Style responsywne
+│   │
+│   ├── js/                             # Skrypty JavaScript
+│   │   ├── components/                 # Komponenty React
+│   │   │   ├── core/                   # Komponenty bazowe
+│   │   │   │   ├── AppLayout.js        # Układ aplikacji
+│   │   │   │   ├── NavBar.js           # Pasek nawigacyjny
+│   │   │   │   ├── SideBar.js          # Menu boczne
+│   │   │   │   └── StatusBadge.js      # Badge statusu
+│   │   │   │
+│   │   │   ├── dashboard/              # Panel główny
+│   │   │   │   └── Dashboard.js        # Komponent dashboardu
+│   │   │   │
+│   │   │   ├── settings/               # Ustawienia
+│   │   │   │   └── Settings.js         # Komponent ustawień
+│   │   │   │
+│   │   │   └── auth/                   # Uwierzytelnianie
+│   │   │       └── Login.js            # Komponent logowania
+│   │   │
+│   │   ├── services/                   # Serwisy API
+│   │   │   ├── api.service.js          # Bazowa usługa API
+│   │   │   ├── auth.service.js         # Usługa uwierzytelniania
+│   │   │   └── dashboard.service.js    # Usługa dashboardu
+│   │   │
+│   │   ├── config/                     # Konfiguracja
+│   │   │   └── api.config.js           # Konfiguracja API
+│   │   │
+│   │   └── app.js                      # Główny plik aplikacji
+│   │
+│   └── img/                            # Obrazy i ikony
+│       ├── logo.svg                    # Logo
+│       └── favicon.svg                 # Ikona strony
+│
+├── database/                           # Pliki bazy danych
+│   ├── schema.sql                      # Pełny schemat bazy danych
+│   └── seed/                           # Dane początkowe
+│       └── demo_data.sql               # Dane demonstracyjne
+│
+├── .htaccess                           # Główna konfiguracja Apache
+├── index.html                          # Główny plik HTML aplikacji
+├── favicon.ico                         # Ikona strony
+├── INSTRUKCJA_INSTALACJI.md            # Instrukcja instalacji
+├── PRZEWODNIK_ROZWOJU.md               # Przewodnik dla deweloperów
+└── README.md                           # Informacje o projekcie
+```
+
+## Objaśnienie najważniejszych katalogów
+
+### 1. API (Backend)
+
+Katalog `api/` zawiera backend aplikacji napisany w PHP:
+
+- **config/**: Pliki konfiguracyjne, w tym połączenie z bazą danych
+- **controllers/**: Obsługują żądania HTTP i implementują logikę routingu
+- **models/**: Reprezentują struktury danych i zawierają metody CRUD
+- **services/**: Zawierają logikę biznesową
+- **utils/**: Narzędzia pomocnicze i funkcje użytkowe
+
+### 2. Assets (Frontend)
+
+Katalog `assets/` zawiera frontend aplikacji:
+
+- **css/**: Arkusze stylów CSS
+- **js/**: Kod JavaScript, w tym komponenty React
+- **img/**: Obrazy, ikony i inne zasoby graficzne
+
+### 3. Database
+
+Katalog `database/` zawiera skrypty SQL:
+
+- **schema.sql**: Pełny schemat bazy danych z definicją tabel
+- **seed/**: Skrypty z danymi początkowymi do szybkiego uruchomienia
+
+## Pliki w katalogu głównym
+
+- **.htaccess**: Konfiguracja Apache, w tym przepisywanie URL dla SPA
+- **index.html**: Główny plik HTML aplikacji
+- **favicon.ico**: Ikona strony wyświetlana w zakładce przeglądarki
+- **INSTRUKCJA_INSTALACJI.md**: Instrukcja instalacji krok po kroku
+- **PRZEWODNIK_ROZWOJU.md**: Dokumentacja dla deweloperów
+- **README.md**: Ogólne informacje o projekcie
+
+## Gdzie zacząć przeglądanie kodu?
+
+1. **Backend**: Zacznij od `api/index.php` aby zrozumieć routing API
+2. **Frontend**: Zacznij od `assets/js/app.js` aby zobaczyć strukturę aplikacji React
+
+---
+
+Copyright © 2025 Nimbot Systems

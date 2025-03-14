@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serwis Opon - System zarządzania</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="assets/css/settings.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- WAŻNE: Biblioteki React ładowane z cdnjs zamiast unpkg -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.22.17/babel.min.js"></script>
+</head>
+<body>
+    <div id="app-root">
+        <!-- Aplikacja React zostanie tutaj wyrenderowana -->
+        <div class="loading-app">
+            <div class="spinner"></div>
+            <p>Ładowanie aplikacji...</p>
+        </div>
+    </div>
+
+    <!-- Konfiguracja API -->
+    <script>
+        // Konfiguracja API
+        const API_CONFIG = {
+            BASE_URL: 'http://localhost/serwis-opon/api',
+            TIMEOUT: 30000,
+            HEADERS: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        };
+    </script>
+
+    <!-- App w jednym pliku dla uproszczenia -->
+    <script type="text/babel">
+        // Destrukturyzacja dla czytelności
+        const { useState, useEffect } = React;
+        
+        // Funkcja symulująca routing
+        function useRouter() {
+            const [currentPath, setCurrentPath] = useState(window.location.hash.substring(1) || '/');
+            
+            function navigate(path) {
+                window.location.hash = path;
+                setCurrentPath(path);
+            }
+            
+            useEffect(() => {
+                const handleHashChange = () => {
+                    setCurrentPath(window.location.hash.substring(1) || '/');
+                };
+                
+                window.addEventListener('hashchange', handleHashChange);
+                return () => window.removeEventListener('hashchange', handleHashChange);
+            }, []);
+            
+            return {
+                path: currentPath,
+                navigate
+            };
+        }
+        
+        // Komponent Link
+        const Link = ({ to, className, children }) => {
+            const { navigate } = useRouter();
+            
+            const handleClick = (e) => {
+                e.preventDefault();
+                navigate(to);
+            };
+            
+            return (
+                <a href={`#${to}`} className={className} onClick={handleClick}>
+                    {children}
+                </a>
+            );
+        };
+
+        // Komponent Login
+        const Login = () => {
+            const { navigate } = useRouter();
+            const [username, setUsername] = useState('');
+            const [password, setPassword] = useState('');
+            const [error, setError] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+            
+            const handleLogin = (e) => {
+                e.preventDefault();
+                setIsLoading(true);
+                setError('');
+                
+                // Symulacja logowania
+                setTimeout(() => {
+                    if (username === 'admin' && password === 'admin123') {
+                        localStorage.setItem('isAuthenticated', 'true');
+                        localStorage.setItem('user', JSON.stringify({
+                            name: 'Adam Nowak',
+                            role: 'admin'
+                        }));
+                        navigate('/');
+                    } else {
+                        setError('Nieprawidłowa nazwa użytkownika lub hasło');
+                        setIsLoading(false);
+                    }
+                }, 1000);
+            };
+            
+            return (
+                <div className="login-container">
+                    <div className="login-form">
+                        <div className="login-logo">🛞</div>
+                        <h1 className="login-title">Serwis Opon</h1>
+                        {error && <div className="login-error">{error}</div>}
+                        <form onSubmit={handleLogin}>
+                            <div className="form-group">
+                                <label htmlFor="username">Nazwa użytkownika</label>
+                                <input 
+                                    type="text" 
+                                    id="username" 
+                                    className="form-control" 
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    required 
+                                    autoFocus 
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="password">Hasło</label>
+                                <input 
+                                    type="password" 
+                                    id="password" 
+                                    className="form-control" 
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required 
+                                />
+                            </div>
+                            <button 
+                                type="submit" 
+                                className="login-button"
+                                disabled={isLoading}
+                            >
+                                {isLoading ? 'Logowanie...' : 'Zaloguj się'}
+                            </button>
+                        </form>
+                        <div className="login-help">
+                            <p>Użyj danych testowych:</p>
+                            <p><strong>Login: admin, Hasło: admin123</strong></p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Komponent SideBar (Menu boczne)
+        const SideBar = ({ collapsed, toggleSidebar }) => {
+            const { path, navigate } = useRouter();
+            
+            return (
+                <aside className="sidebar">
+                    <div className="sidebar-header">
+                        <h1>
+                            <span>🛞</span>
+                            <span className={collapsed ? 'hidden' : ''}>Serwis Opon</span>
+                        </h1>
+                        <button className="sidebar-toggle" onClick={toggleSidebar}>
+                            {collapsed ? '→' : '←'}
+                        </button>
+                    </div>
+                    
+                    <nav className="sidebar-nav">
+                        <Link to="/" className={path === '/' ? 'active' : ''}>
+                            <span className="icon-spacing">📊</span>
+                            <span className={collapsed ? 'hidden' : ''}>Panel główny</span>
+                        </Link>
+                        <Link to="/reservations" className={path.startsWith('/reservations') ? 'active' : ''}>
+                            <span className="icon-spacing">📅</span>
+                            <span className={collapsed ? 'hidden' : ''}>Rezerwacje</span>
+                        </Link>
+                        <Link to="/storage" className={path.startsWith('/storage') ? 'active' : ''}>
+                            <span className="icon-spacing">🏢</span>
+                            <span className={collapsed ? 'hidden' : ''}>Przechowalnia</span>
+                        </Link>
+                        <Link to="/clients" className={path.startsWith('/clients') ? 'active' : ''}>
+                            <span className="icon-spacing">👥</span>
+                            <span className={collapsed ? 'hidden' : ''}>Klienci</span>
+                        </Link>
+                        <Link to="/inventory" className={path.startsWith('/inventory') ? 'active' : ''}>
+                            <span className="icon-spacing">📦</span>
+                            <span className={collapsed ? 'hidden' : ''}>Magazyn</span>
+                        </Link>
+                        <Link to="/orders" className={path.startsWith('/orders') ? 'active' : ''}>
+                            <span className="icon-spacing">📋</span>
+                            <span className={collapsed ? 'hidden' : ''}>Zamówienia</span>
+                        </Link>
+                        <Link to="/employees" className={path.startsWith('/employees') ? 'active' : ''}>
+                            <span className="icon-spacing">👨‍💼</span>
+                            <span className={collapsed ? 'hidden' : ''}>Pracownicy</span>
+                        </Link>
+                        <Link to="/finance" className={path.startsWith('/finance') ? 'active' : ''}>
+                            <span className="icon-spacing">💰</span>
+                            <span className={collapsed ? 'hidden' : ''}>Finanse</span>
+                        </Link>
+                        <Link to="/settings" className={path === '/settings' ? 'active' : ''}>
+                            <span className="icon-spacing">⚙️</span>
+                            <span className={collapsed ? 'hidden' : ''}>Ustawienia</span>
+                        </Link>
+                    </nav>
+                    
+                    <div className={`sidebar-footer ${collapsed ? 'hidden' : ''}`}>
+                        <div className="version">Wersja 1.0.0</div>
+                        <div className="copyright">Nimbot Systems © 2025</div>
+                    </div>
+                </aside>
+            );
+        };
+
+        // Komponent NavBar (Górny pasek)
+        const NavBar = ({ toggleSidebar }) => {
+            const { navigate } = useRouter();
+            let user = { name: 'Użytkownik' };
+            
+            try {
+                const savedUser = localStorage.getItem('user');
+                if (savedUser) {
+                    user = JSON.parse(savedUser);
+                }
+            } catch (e) {
+                console.error('Error parsing user data', e);
+            }
+            
+            const handleLogout = () => {
+                localStorage.removeItem('isAuthenticated');
+                localStorage.removeItem('user');
+                navigate('/login');
+            };
+            
+            return (
+                <header className="top-navbar">
+                    <div className="search-box">
+                        <input 
+                            type="text" 
+                            placeholder="Szukaj klienta, opony, rezerwacji..." 
+                        />
+                        <span className="search-icon">🔍</span>
+                    </div>
+                    
+                    <div className="navbar-right">
+                        <div className="notification-icon">
+                            <span>🔔</span>
+                            <span className="notification-badge">3</span>
+                        </div>
+                        
+                        <div className="user-profile">
+                            <span className="user-name">{user.name}</span>
+                            <div className="avatar">AN</div>
+                            <button onClick={handleLogout} className="logout-btn" style={{marginLeft: '10px'}}>
+                                Wyloguj
+                            </button>
+                        </div>
+                    </div>
+                </header>
+            );
+        };
+
+        // Komponent Dashboard (Panel główny)
+        const Dashboard = () => {
+            const [loading, setLoading] = useState(true);
+            const [stats, setStats] = useState({
+                reservations: { today: 0, yesterday: 0, change: 0 },
+                storage: { tires: 0, capacity: 0, capacityPercentage: 0 },
+                clients: { total: 0, newThisMonth: 0 },
+                alerts: 0
+            });
+            const [todayReservations, setTodayReservations] = useState([]);
+            
+            useEffect(() => {
+                // Symulacja ładowania danych
+                setTimeout(() => {
+                    setStats({
+                        reservations: { today: 8, yesterday: 6, change: 2 },
+                        storage: { tires: 152, capacity: 200, capacityPercentage: 76 },
+                        clients: { total: 287, newThisMonth: 14 },
+                        alerts: 3
+                    });
+                    
+                    setTodayReservations([
+                        { id: 1, time: '08:00', client: 'Jan Kowalski', service: 'Wymiana opon (4 szt.)', status: 'completed' },
+                        { id: 2, time: '09:30', client: 'Anna Nowak', service: 'Przechowanie opon (4 szt.)', status: 'in_progress' },
+                        { id: 3, time: '11:00', client: 'Piotr Wiśniewski', service: 'Wymiana + wyważanie (4 szt.)', status: 'pending' },
+                        { id: 4, time: '13:30', client: 'Katarzyna Lewandowska', service: 'Naprawa opony', status: 'pending' },
+                        { id: 5, time: '15:00', client: 'Michał Kaczmarek', service: 'Odbiór opon z przechowalni', status: 'pending' }
+                    ]);
+                    
+                    setLoading(false);
+                }, 1000);
+            }, []);
+            
+            const getStatusBadge = (status) => {
+                switch(status) {
+                    case 'completed': return <span className="status-badge completed">Zakończona</span>;
+                    case 'in_progress': return <span className="status-badge in-progress">W trakcie</span>;
+                    case 'pending': return <span className="status-badge pending">Oczekuje</span>;
+                    default: return <span className="status-badge">{status}</span>;
+                }
+            };
+            
+            if (loading) {
+                return (
+                    <div className="dashboard-loading">
+                        <div className="spinner"></div>
+                        <p>Ładowanie danych...</p>
+                    </div>
+                );
+            }
+            
+            return (
+                <div className="dashboard-container">
+                    <h1 className="page-title">Panel główny</h1>
+                    <p className="page-subtitle">Przegląd aktualnej działalności serwisu</p>
+                    
+                    {/* Statystyki */}
+                    <div className="statistics-grid">
+                        <div className="stat-card">
+                            <div className="stat-card-header">
+                                <h3>Dzisiejsze rezerwacje</h3>
+                                <div className="stat-icon calendar">📅</div>
+                            </div>
+                            <div className="stat-card-body">
+                                <div className="stat-number">{stats.reservations.today}</div>
+                            </div>
+                            <div className="stat-card-footer">
+                                <div className="stat-change positive">
+                                    ⬆️ +{stats.reservations.change} względem wczoraj
+                                </div>
+                                <Link to="/reservations" className="stat-link">
+                                    Zobacz harmonogram 👁️
+                                </Link>
+                            </div>
+                        </div>
+                        
+                        <div className="stat-card">
+                            <div className="stat-card-header">
+                                <h3>Opony w przechowalni</h3>
+                                <div className="stat-icon warehouse">🏢</div>
+                            </div>
+                            <div className="stat-card-body">
+                                <div className="stat-number">{stats.storage.tires}</div>
+                            </div>
+                            <div className="stat-card-footer">
+                                <div className="stat-info">
+                                    {stats.storage.capacityPercentage}% pojemności magazynu
+                                </div>
+                                <Link to="/storage" className="stat-link">
+                                    Zarządzaj przechowalnią 👁️
+                                </Link>
+                            </div>
+                        </div>
+                        
+                        <div className="stat-card">
+                            <div className="stat-card-header">
+                                <h3>Klientów w bazie</h3>
+                                <div className="stat-icon clients">👥</div>
+                            </div>
+                            <div className="stat-card-body">
+                                <div className="stat-number">{stats.clients.total}</div>
+                            </div>
+                            <div className="stat-card-footer">
+                                <div className="stat-change positive">
+                                    ⬆️ +{stats.clients.newThisMonth} w tym miesiącu
+                                </div>
+                                <Link to="/clients" className="stat-link">
+                                    Baza klientów 👁️
+                                </Link>
+                            </div>
+                        </div>
+                        
+                        <div className="stat-card">
+                            <div className="stat-card-header">
+                                <h3>Alerty</h3>
+                                <div className="stat-icon alerts">⚠️</div>
+                            </div>
+                            <div className="stat-card-body">
+                                <div className="stat-number">{stats.alerts}</div>
+                            </div>
+                            <div className="stat-card-footer">
+                                <div className="stat-alert">
+                                    {stats.alerts > 0 ? 'Wymaga uwagi!' : 'Brak alertów'}
+                                </div>
+                                <Link to="/alerts" className="stat-link">
+                                    Sprawdź alerty 👁️
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Rezerwacje */}
+                    <div className="dashboard-section">
+                        <div className="section-header">
+                            <h2>Dzisiejsze rezerwacje</h2>
+                            <button className="btn-primary">+ Nowa rezerwacja</button>
+                        </div>
+                        
+                        <div className="table-responsive">
+                            <table className="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Czas</th>
+                                        <th>Klient</th>
+                                        <th>Usługa</th>
+                                        <th>Status</th>
+                                        <th>Akcje</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {todayReservations.map(res => (
+                                        <tr key={res.id}>
+                                            <td>{res.time}</td>
+                                            <td>{res.client}</td>
+                                            <td>{res.service}</td>
+                                            <td>{getStatusBadge(res.status)}</td>
+                                            <td className="actions-cell">
+                                                <button className="btn-icon" title="Zobacz">👁️</button>
+                                                <button className="btn-icon" title="Edytuj">✏️</button>
+                                                <button className="btn-icon" title="Drukuj">🖨️</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div className="section-footer">
+                            <Link to="/reservations" className="link-all">
+                                Zobacz wszystkie rezerwacje
+                            </Link>
+                        </div>
+                    </div>
+                    
+                    {/* Szybkie akcje */}
+                    <div className="quick-actions-section">
+                        <h2>Szybkie akcje</h2>
+                        <div className="quick-actions-grid">
+                            <Link to="/reservations/new" className="quick-action-card">
+                                <div className="quick-action-icon">📅</div>
+                                <div className="quick-action-label">Nowa rezerwacja</div>
+                            </Link>
+                            <Link to="/clients/new" className="quick-action-card">
+                                <div className="quick-action-icon">👤</div>
+                                <div className="quick-action-label">Nowy klient</div>
+                            </Link>
+                            <Link to="/invoices/new" className="quick-action-card">
+                                <div className="quick-action-icon">📄</div>
+                                <div className="quick-action-label">Nowa faktura</div>
+                            </Link>
+                            <Link to="/storage/find" className="quick-action-card">
+                                <div className="quick-action-icon">🔍</div>
+                                <div className="quick-action-label">Znajdź opony</div>
+                            </Link>
+                            <Link to="/storage/delivery" className="quick-action-card">
+                                <div className="quick-action-icon">🚚</div>
+                                <div className="quick-action-label">Dodaj dostawę</div>
+                            </Link>
+                            <Link to="/services/new" className="quick-action-card">
+                                <div className="quick-action-icon">🏷️</div>
+                                <div className="quick-action-label">Drukuj etykietę</div>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Komponent-zaślepka dla stron w budowie
+        const UnderConstruction = ({ pageName }) => (
+            <div style={{ textAlign: 'center', padding: '50px 20px' }}>
+                <h1>🚧 Strona w budowie 🚧</h1>
+                <p>Moduł <strong>{pageName}</strong> jest w trakcie implementacji.</p>
+                <p>Wróć wkrótce!</p>
+            </div>
+        );
+
+        // Główny układ aplikacji
+        const AppLayout = ({ children }) => {
+            const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+            
+            const toggleSidebar = () => {
+                setSidebarCollapsed(!sidebarCollapsed);
+            };
+            
+            useEffect(() => {
+                const handleResize = () => {
+                    if (window.innerWidth < 992) {
+                        setSidebarCollapsed(true);
+                    }
+                };
+                
+                window.addEventListener('resize', handleResize);
+                handleResize(); // Wywołaj przy montowaniu
+                
+                return () => {
+                    window.removeEventListener('resize', handleResize);
+                };
+            }, []);
+            
+            return (
+                <div className={`app-container ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+                    <SideBar collapsed={sidebarCollapsed} toggleSidebar={toggleSidebar} />
+                    <main className="main-content">
+                        <NavBar toggleSidebar={toggleSidebar} />
+                        <div className="page-content">
+                            {children}
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        // Główny komponent aplikacji
+        function App() {
+            const { path } = useRouter();
+            const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+            
+            if (path === '/login' || path === '') {
+                if (isAuthenticated) {
+                    window.location.hash = '#/';
+                    return null;
+                }
+                return <Login />;
+            }
+            
+            if (!isAuthenticated) {
+                window.location.hash = '#/login';
+                return null;
+            }
+            
+            let content;
+            if (path === '/' || path === '') {
+                content = <Dashboard />;
+            } else if (path.startsWith('/reservations')) {
+                content = <UnderConstruction pageName="Rezerwacje" />;
+            } else if (path.startsWith('/storage')) {
+                content = <UnderConstruction pageName="Przechowalnia" />;
+            } else if (path.startsWith('/clients')) {
+                content = <UnderConstruction pageName="Klienci" />;
+            } else if (path.startsWith('/inventory')) {
+                content = <UnderConstruction pageName="Magazyn" />;
+            } else if (path.startsWith('/orders')) {
+                content = <UnderConstruction pageName="Zamówienia" />;
+            } else if (path.startsWith('/employees')) {
+                content = <UnderConstruction pageName="Pracownicy" />;
+            } else if (path.startsWith('/finance')) {
+                content = <UnderConstruction pageName="Finanse" />;
+            } else if (path === '/settings') {
+                content = <UnderConstruction pageName="Ustawienia" />;
+            } else {
+                content = <UnderConstruction pageName="Nieznana strona" />;
+            }
+            
+            return (
+                <AppLayout>
+                    {content}
+                </AppLayout>
+            );
+        }
+
+        // Renderuj aplikację
+        ReactDOM.createRoot(document.getElementById('app-root')).render(<App />);
+    </script>
+</body>
+</html>

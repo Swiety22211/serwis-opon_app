@@ -1,0 +1,228 @@
+# Przewodnik rozwoju aplikacji Serwis Opon
+
+Ten przewodnik zawiera informacje dla deweloperów, którzy chcą rozwijać aplikację Serwis Opon.
+
+## Architektura systemu
+
+Aplikacja "Serwis Opon" jest zbudowana zgodnie z architekturą SPA (Single Page Application):
+
+1. **Frontend**: Aplikacja React.js działająca w przeglądarce
+2. **Backend**: API REST w PHP
+3. **Baza danych**: MySQL
+
+### Struktura katalogów projektu
+
+```
+serwis-opon/
+├── api/                      # Backend API (PHP)
+│   ├── config/               # Konfiguracja
+│   ├── controllers/          # Kontrolery API
+│   ├── models/               # Modele danych
+│   ├── services/             # Serwisy biznesowe
+│   ├── utils/                # Narzędzia pomocnicze
+│   └── index.php             # Główny plik wejściowy API
+├── assets/                   # Zasoby statyczne
+│   ├── css/                  # Style CSS
+│   ├── js/                   # Skrypty JavaScript
+│   │   ├── components/       # Komponenty React
+│   │   ├── services/         # Serwisy API
+│   │   └── config/           # Konfiguracja
+│   └── img/                  # Obrazy
+├── database/                 # Pliki bazy danych
+│   └── schema.sql            # Schemat bazy danych
+└── index.html                # Główny plik HTML
+```
+
+## Rozpoczęcie pracy nad projektem
+
+### Konfiguracja środowiska deweloperskiego
+
+1. Klonuj lub pobierz repozytorium:
+   ```
+   git clone https://github.com/Swiety22211/serwis-opon.git
+   ```
+
+2. Skonfiguruj serwer lokalny (XAMPP, WAMP, MAMP):
+   - Upewnij się, że Apache i MySQL są uruchomione
+   - Upewnij się, że mod_rewrite jest włączony w Apache
+
+3. Utwórz bazę danych:
+   - Nazwa: `serwis_opon`
+   - Kodowanie: `utf8mb4_polish_ci`
+   - Zaimportuj schemat: `database/schema.sql`
+
+### Dodawanie nowych funkcjonalności
+
+#### 1. Dodawanie nowego modułu w API
+
+1. Utwórz nowy model w `api/models/`:
+   ```php
+   <?php
+   class NewModule {
+       // Połączenie z bazą danych
+       private $conn;
+       private $table_name = "new_module_table";
+       
+       // Konstruktor
+       public function __construct($db) {
+           $this->conn = $db;
+       }
+       
+       // Metody CRUD
+   }
+   ?>
+   ```
+
+2. Utwórz kontroler w `api/controllers/`:
+   ```php
+   <?php
+   class NewModuleController {
+       // Połączenie z bazą danych
+       private $conn;
+       
+       // Konstruktor
+       public function __construct($db) {
+           $this->conn = $db;
+       }
+       
+       // Metody API
+   }
+   ?>
+   ```
+
+3. Dodaj obsługę nowego endpointu w `api/index.php`:
+   ```php
+   case 'new-module':
+       require_once 'controllers/NewModuleController.php';
+       $controller = new NewModuleController($db);
+       
+       if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+           $controller->get();
+       } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+           $controller->create();
+       }
+       // itd...
+       break;
+   ```
+
+#### 2. Dodawanie nowej funkcjonalności w interfejsie
+
+1. Utwórz nowy komponent React w `assets/js/components/`:
+   ```javascript
+   /**
+    * Komponent NewModule
+    */
+   const NewModule = () => {
+       const [data, setData] = React.useState([]);
+       const [loading, setLoading] = React.useState(true);
+       
+       // Kod komponentu
+       
+       return (
+           // JSX komponentu
+       );
+   };
+   ```
+
+2. Dodaj usługę API w `assets/js/services/`:
+   ```javascript
+   /**
+    * Serwis dla nowego modułu
+    */
+   class NewModuleService extends ApiService {
+       constructor() {
+           super();
+       }
+       
+       // Metody API
+   }
+   ```
+
+3. Dodaj nową trasę w `assets/js/app.js`:
+   ```javascript
+   React.createElement(Route, { 
+       path: '/new-module',
+       element: React.createElement(ProtectedRoute, null,
+           React.createElement(AppLayout, null,
+               React.createElement(NewModule)
+           )
+       )
+   })
+   ```
+
+4. Dodaj link do nowego modułu w menu bocznym (`assets/js/components/core/SideBar.js`)
+
+## Najlepsze praktyki programistyczne
+
+### Backend (PHP)
+
+1. **Strukturyzacja kodu**:
+   - Używaj klas i obiektów
+   - Unikaj mieszania HTML i PHP
+   - Utrzymuj jeden plik na jedną klasę
+
+2. **Bezpieczeństwo**:
+   - Używaj przygotowanych zapytań (prepared statements) dla operacji SQL
+   - Filtruj i waliduj wszystkie dane wejściowe
+   - Używaj mechanizmów autoryzacji i uwierzytelniania
+
+3. **API REST**:
+   - Używaj poprawnych metod HTTP (GET, POST, PUT, DELETE)
+   - Zwracaj odpowiednie kody statusów HTTP
+   - Formatuj odpowiedzi JSON w spójny sposób
+
+### Frontend (JavaScript/React)
+
+1. **Struktura komponentów**:
+   - Utrzymuj komponenty małe i skupione na jednym zadaniu
+   - Używaj konwencji nazewnictwa PascalCase dla komponentów
+   - Grupuj komponenty według modułów funkcjonalnych
+
+2. **Zarządzanie stanem**:
+   - Przechowuj stan tylko tam, gdzie jest potrzebny
+   - Używaj props do przekazywania danych w dół
+   - Używaj funkcji zwrotnych do komunikacji w górę
+
+3. **Komunikacja z API**:
+   - Używaj serwisów API do centralizacji logiki komunikacji
+   - Obsługuj odpowiednio stany ładowania i błędy
+   - Używaj cachowania tam, gdzie ma to sens
+
+## Proces rozwoju
+
+### Wersjonowanie
+
+Zalecamy stosowanie [Semantic Versioning](https://semver.org/):
+- **MAJOR** - zmiany niekompatybilne wstecz
+- **MINOR** - nowe funkcjonalności, kompatybilne wstecz
+- **PATCH** - naprawy błędów, kompatybilne wstecz
+
+### Workflow Git
+
+1. Twórz nową gałąź dla każdej funkcjonalności:
+   ```bash
+   git checkout -b feature/nazwa-funkcjonalności
+   ```
+
+2. Pracuj na gałęzi i commituj regularnie:
+   ```bash
+   git add .
+   git commit -m "Opis zmiany"
+   ```
+
+3. Po zakończeniu pracy, utwórz Pull Request do gałęzi głównej
+
+### Testy
+
+- **PHP**: Pisz testy jednostkowe dla ważnych części logiki biznesowej
+- **JavaScript**: Testuj komponenty React używając narzędzi jak Jest i React Testing Library
+
+## Zasoby
+
+- [Dokumentacja React](https://react.dev/)
+- [Dokumentacja PHP](https://www.php.net/docs.php)
+- [Dokumentacja MySQL](https://dev.mysql.com/doc/)
+
+---
+
+Copyright © 2025 Nimbot Systems

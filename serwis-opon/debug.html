@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostyka - Serwis Opon</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c7be5;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #333;
+            margin-top: 30px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        button {
+            background-color: #2c7be5;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+        button:hover {
+            background-color: #1a68d1;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        #results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Diagnostyka Serwis Opon</h1>
+    <p>
+        Ten plik pomoże zdiagnozować problemy z działaniem aplikacji Serwis Opon.
+        Wykonaj poniższe testy, aby sprawdzić potencjalne przyczyny problemów.
+    </p>
+
+    <h2>1. Test połączenia z serwerem</h2>
+    <button id="testServer">Sprawdź serwer</button>
+    <div id="serverResult"></div>
+
+    <h2>2. Test zgodności przeglądarki</h2>
+    <button id="testBrowser">Sprawdź przeglądarkę</button>
+    <div id="browserResult"></div>
+
+    <h2>3. Test plików aplikacji</h2>
+    <button id="testFiles">Sprawdź pliki</button>
+    <div id="filesResult"></div>
+
+    <h2>4. Test połączenia z bazą danych</h2>
+    <button id="testDatabase">Sprawdź bazę danych</button>
+    <div id="databaseResult"></div>
+
+    <h2>5. Test interfejsu</h2>
+    <button id="testInterface">Sprawdź interfejs</button>
+    <div id="interfaceResult"></div>
+
+    <h2>Raport z testów</h2>
+    <div id="results"></div>
+
+    <script>
+        // Element wyników
+        const results = document.getElementById('results');
+        const testsResults = {
+            server: null,
+            browser: null,
+            files: null,
+            database: null,
+            interface: null
+        };
+
+        // Helper do wyświetlania wyników testów
+        function showResult(element, status, message) {
+            element.innerHTML = `<div class="${status}">${message}</div>`;
+        }
+
+        // Aktualizacja raportu
+        function updateReport() {
+            const reportItems = [];
+            let allPassed = true;
+
+            for (const [test, result] of Object.entries(testsResults)) {
+                if (result === null) continue;
+                
+                reportItems.push(`<li>${test}: ${result.status === 'success' ? '✅ Passed' : '❌ Failed'} - ${result.message}</li>`);
+                if (result.status !== 'success') allPassed = false;
+            }
+
+            if (reportItems.length > 0) {
+                results.innerHTML = `
+                    <div class="${allPassed ? 'success' : 'warning'}">
+                        <h3>${allPassed ? 'Wszystkie testy zakończone pomyślnie!' : 'Niektóre testy nie powiodły się'}</h3>
+                        <ul>${reportItems.join('')}</ul>
+                        ${!allPassed ? '<p><strong>Wskazówka:</strong> Sprawdź szczegóły testów, które nie powiodły się, aby rozwiązać problemy.</p>' : ''}
+                    </div>
+                `;
+            }
+        }
+
+        // 1. Test serwera
+        document.getElementById('testServer').addEventListener('click', function() {
+            const resultElement = document.getElementById('serverResult');
+            showResult(resultElement, 'warning', 'Testowanie...');
+
+            // Sprawdzenie, czy serwer działa
+            fetch(window.location.href)
+                .then(response => {
+                    if (response.ok) {
+                        showResult(resultElement, 'success', 'Serwer działa poprawnie! Połączenie HTTP działa.');
+                        testsResults.server = { status: 'success', message: 'Serwer działa poprawnie' };
+                    } else {
+                        showResult(resultElement, 'error', `Błąd serwera: ${response.status} ${response.statusText}`);
+                        testsResults.server = { status: 'error', message: `Status: ${response.status}` };
+                    }
+                })
+                .catch(error => {
+                    showResult(resultElement, 'error', `Nie można połączyć się z serwerem: ${error.message}`);
+                    testsResults.server = { status: 'error', message: error.message };
+                })
+                .finally(() => {
+                    updateReport();
+                });
+        });
+
+        // 2. Test przeglądarki
+        document.getElementById('testBrowser').addEventListener('click', function() {
+            const resultElement = document.getElementById('browserResult');
+            const features = {
+                localStorage: typeof localStorage !== 'undefined',
+                sessionStorage: typeof sessionStorage !== 'undefined',
+                fetch: typeof fetch !== 'undefined',
+                JSON: typeof JSON !== 'undefined',
+                Promise: typeof Promise !== 'undefined'
+            };
+
+            const report = [];
+            let allSupported = true;
+
+            for (const [feature, supported] of Object.entries(features)) {
+                report.push(`${feature}: ${supported ? 'Wspierane ✅' : 'Niewspierane ❌'}`);
+                if (!supported) allSupported = false;
+            }
+
+            if (allSupported) {
+                showResult(resultElement, 'success', `Twoja przeglądarka wspiera wszystkie wymagane funkcje:<br>${report.join('<br>')}`);
+                testsResults.browser = { status: 'success', message: 'Przeglądarka wspiera wszystkie wymagane funkcje' };
+            } else {
+                showResult(resultElement, 'error', `Twoja przeglądarka nie wspiera niektórych wymaganych funkcji:<br>${report.join('<br>')}`);
+                testsResults.browser = { status: 'error', message: 'Brak wsparcia dla niezbędnych funkcji' };
+            }
+            
+            updateReport();
+        });
+
+        // 3. Test plików
+        document.getElementById('testFiles').addEventListener('click', function() {
+            const resultElement = document.getElementById('filesResult');
+            showResult(resultElement, 'warning', 'Sprawdzanie plików...');
+
+            const filesToCheck = [
+                '/index.html',
+                '/assets/css/main.css',
+                '/assets/js/app.js',
+                '/api/index.php'
+            ];
+
+            let failedFiles = 0;
+            let completedChecks = 0;
+            
+            filesToCheck.forEach(file => {
+                fetch(window.location.pathname.replace('debug.html', '') + file)
+                    .then(response => {
+                        if (!response.ok) failedFiles++;
+                    })
+                    .catch(() => {
+                        failedFiles++;
+                    })
+                    .finally(() => {
+                        completedChecks++;
+                        
+                        if (completedChecks === filesToCheck.length) {
+                            if (failedFiles === 0) {
+                                showResult(resultElement, 'success', 'Wszystkie kluczowe pliki aplikacji są dostępne.');
+                                testsResults.files = { status: 'success', message: 'Wszystkie pliki dostępne' };
+                            } else {
+                                showResult(resultElement, 'error', `${failedFiles} z ${filesToCheck.length} plików nie jest dostępnych. Sprawdź czy wszystkie pliki zostały poprawnie skopiowane.`);
+                                testsResults.files = { status: 'error', message: `${failedFiles} plików niedostępnych` };
+                            }
+                            updateReport();
+                        }
+                    });
+            });
+        });
+
+        // 4. Test bazy danych
+        document.getElementById('testDatabase').addEventListener('click', function() {
+            const resultElement = document.getElementById('databaseResult');
+            showResult(resultElement, 'warning', 'Sprawdzanie połączenia z bazą danych...');
+
+            // Próba połączenia z API, które sprawdza bazę danych
+            fetch(window.location.pathname.replace('debug.html', '') + 'api/test-db.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showResult(resultElement, 'success', 'Połączenie z bazą danych działa prawidłowo.');
+                        testsResults.database = { status: 'success', message: 'Połączenie działa' };
+                    } else {
+                        showResult(resultElement, 'error', `Problem z bazą danych: ${data.message}`);
+                        testsResults.database = { status: 'error', message: data.message };
+                    }
+                })
+                .catch(error => {
+                    // Jeśli pierwszy test nie zadziałał, spróbujmy sprawdzić czy API działa
+                    fetch(window.location.pathname.replace('debug.html', '') + 'api/index.php')
+                        .then(response => {
+                            if (response.ok) {
+                                showResult(resultElement, 'warning', 'API działa, ale endpoint testowy nie istnieje. Proszę sprawdzić konfigurację bazy danych ręcznie.');
+                                testsResults.database = { status: 'warning', message: 'API działa, ale test bazy nie istnieje' };
+                            } else {
+                                showResult(resultElement, 'error', 'API nie odpowiada. Sprawdź czy PHP i serwer Apache działają poprawnie.');
+                                testsResults.database = { status: 'error', message: 'API nie odpowiada' };
+                            }
+                        })
+                        .catch(() => {
+                            showResult(resultElement, 'error', 'Nie można połączyć się z API. Sprawdź czy PHP i serwer Apache są włączone.');
+                            testsResults.database = { status: 'error', message: 'Brak dostępu do API' };
+                        })
+                        .finally(() => {
+                            updateReport();
+                        });
+                })
+                .finally(() => {
+                    updateReport();
+                });
+        });
+
+        // 5. Test interfejsu
+        document.getElementById('testInterface').addEventListener('click', function() {
+            const resultElement = document.getElementById('interfaceResult');
+            
+            // Utworzenie prostego testowego interfejsu
+            const testDiv = document.createElement('div');
+            testDiv.id = 'interfaceTest';
+            testDiv.style.display = 'none';
+            document.body.appendChild(testDiv);
+            
+            try {
+                testDiv.innerHTML = `
+                    <div class="login-container">
+                        <div class="login-form">
+                            <h1>Test interfejsu</h1>
+                            <button id="testButton">Przycisk testowy</button>
+                        </div>
+                    </div>
+                `;
+                
+                const testButton = document.getElementById('testButton');
+                
+                if (testButton) {
+                    showResult(resultElement, 'success', 'Interfejs użytkownika działa poprawnie. Można renderować HTML i obsługiwać zdarzenia.');
+                    testsResults.interface = { status: 'success', message: 'Interfejs działa poprawnie' };
+                } else {
+                    showResult(resultElement, 'error', 'Nie można poprawnie manipulować interfejsem użytkownika.');
+                    testsResults.interface = { status: 'error', message: 'Problem z manipulacją DOM' };
+                }
+            } catch (error) {
+                showResult(resultElement, 'error', `Błąd podczas testowania interfejsu: ${error.message}`);
+                testsResults.interface = { status: 'error', message: error.message };
+            } finally {
+                if (testDiv) document.body.removeChild(testDiv);
+                updateReport();
+            }
+        });
+
+        // Uruchom automatycznie test przeglądarki
+        document.getElementById('testBrowser').click();
+    </script>
+</body>
+</html>
