@@ -1,6 +1,9 @@
 /**
  * Komponent menu bocznego (SideBar)
  */
+// Import modułu klientów
+import { inicjalizujModulKlientow } from '../clients/ClientsModule.js';
+
 const SideBar = ({ collapsed, toggleSidebar }) => {
   // Aktualnie aktywny moduł
   const [activeModule, setActiveModule] = React.useState('dashboard');
@@ -11,6 +14,21 @@ const SideBar = ({ collapsed, toggleSidebar }) => {
   // Obsługa kliknięcia w link
   const handleLinkClick = (module) => {
     setActiveModule(module);
+    
+    // Inicjalizacja modułu klientów, jeśli został wybrany
+    if (module === 'clients') {
+      const mainContent = document.getElementById('main-content');
+      if (mainContent) {
+        mainContent.innerHTML = '';
+        
+        const klienciKontener = document.createElement('div');
+        klienciKontener.className = 'klienci-kontener';
+        mainContent.appendChild(klienciKontener);
+        
+        // Inicjalizacja modułu klientów
+        inicjalizujModulKlientow();
+      }
+    }
   };
   
   return React.createElement('aside', { className: 'sidebar' },
@@ -58,11 +76,12 @@ const SideBar = ({ collapsed, toggleSidebar }) => {
         React.createElement('span', null, 'Przechowalnia')
       ),
       
-      // Klienci
+      // Klienci - Zaktualizowany do integracji z modułem klientów
       React.createElement('a', { 
         href: '#/clients',
         className: isActive('clients') ? 'active' : '',
-        onClick: () => handleLinkClick('clients')
+        onClick: () => handleLinkClick('clients'),
+        id: 'menu-klienci'
       },
         React.createElement('span', { className: 'icon-spacing' }, '👥'),
         React.createElement('span', null, 'Klienci')
@@ -121,8 +140,8 @@ const SideBar = ({ collapsed, toggleSidebar }) => {
     
     // Stopka menu
     React.createElement('div', { className: 'sidebar-footer' },
-      React.createElement('div', { className: 'version' }, 'Wersja 1.0.0'),
-      React.createElement('div', { className: 'copyright' }, 'Nimbot Systems © 2025')
+      React.createElement('div', { className: 'version' }, 'Wersja 1.0.1'),
+      React.createElement('div', { className: 'copyright' }, 'MATEO Serwis Opon Systems © 2025')
     )
   );
 };

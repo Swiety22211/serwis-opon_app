@@ -87,7 +87,7 @@ Struktura katalogów i plików jest opisana w [STRUKTURA_KATALOGÓW.md](STRUKTUR
 
 ## 📄 Licencja
 
-Copyright © 2025 Nimbot Systems. Wszelkie prawa zastrzeżone.
+Copyright © 2025 MATEO Serwis Opon Systems. Wszelkie prawa zastrzeżone.
 
 ## 📞 Kontakt i wsparcie
 

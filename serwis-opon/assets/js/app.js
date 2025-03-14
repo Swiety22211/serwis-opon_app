@@ -6,6 +6,8 @@
 const { useState, useEffect } = React;
 const { HashRouter, Routes, Route, Navigate } = ReactRouterDOM;
 
+import './components/clients/ClientsModule.js';
+
 /**
  * Komponent Login - strona logowania
  */
@@ -145,6 +147,59 @@ const App = () => {
     )
   );
 };
+
+// Obsługa modułu klientów
+document.addEventListener('DOMContentLoaded', function() {
+  const clientsLink = document.querySelector('a[href="#clients"]');
+  
+  if (clientsLink) {
+    clientsLink.addEventListener('click', async function(e) {
+      e.preventDefault();
+      
+      // Usuń klasę active ze wszystkich linków
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+      });
+      
+      // Dodaj klasę active do klikniętego linku
+      this.classList.add('active');
+      
+      // Ukryj wszystkie sekcje
+      document.querySelectorAll('.section').forEach(section => {
+        section.style.display = 'none';
+      });
+      
+      // Pokaż sekcję klientów
+      const clientsSection = document.getElementById('clients-section');
+      clientsSection.style.display = 'block';
+      
+      try {
+        // Dynamiczne ładowanie modułu klientów
+        const ClientsModule = await import('/assets/js/components/clients/ClientsModule.js');
+        
+        // Wyczyść sekcję i przygotuj kontener
+        clientsSection.innerHTML = '';
+        const klienciKontener = document.createElement('div');
+        klienciKontener.className = 'klienci-kontener';
+        clientsSection.appendChild(klienciKontener);
+        
+        // Inicjalizuj moduł klientów
+        ClientsModule.inicjalizujModulKlientow();
+      } catch (error) {
+        console.error('Błąd ładowania modułu klientów:', error);
+        clientsSection.innerHTML = `
+          <div class="container p-5">
+            <div class="alert alert-danger">
+              <h4><i class="fas fa-exclamation-triangle"></i> Wystąpił błąd podczas ładowania modułu klientów</h4>
+              <p>Spróbuj odświeżyć stronę lub skontaktuj się z administratorem.</p>
+              <pre class="bg-light p-3 mt-3">${error.message}</pre>
+            </div>
+          </div>
+        `;
+      }
+    });
+  }
+});
 
 // Renderowanie aplikacji
 const rootElement = document.getElementById('app-root');

@@ -140,4 +140,4 @@ Katalog `database/` zawiera skrypty SQL:
 
 ---
 
-Copyright © 2025 Nimbot Systems
+Copyright © 2025 MATEO Serwis Opon Systems

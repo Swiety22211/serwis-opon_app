@@ -42,6 +42,31 @@ $controller = $endpoint_parts[0] ?? '';
 $id = $endpoint_parts[1] ?? null;
 $action = $endpoint_parts[2] ?? null;
 
+// Dodaj nowy kontroler klientów
+require_once 'controllers/ClientsController.php';
+$clientsController = new ClientsController($db);
+
+// Obsługa endpointów
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$uri = explode('/', $uri);
+
+// Sprawdź, czy żądanie dotyczy klientów
+if (isset($uri[3]) && $uri[3] == 'clients') {
+    // Metoda GET - pobieranie wszystkich klientów
+    if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+        $clients = $clientsController->getAll();
+        echo json_encode($clients);
+    }
+    
+    // Metoda POST - dodawanie nowego klienta
+    else if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $client = $clientsController->add();
+        echo json_encode($client);
+    }
+    
+    // Dodaj więcej metod (PUT, DELETE, itp.)
+}
+
 // Mapowanie URL na odpowiednie kontrolery
 switch ($controller) {
     case 'auth':
